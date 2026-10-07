@@ -48,12 +48,9 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "https://api.restful-api.dev/objects",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects"
@@ -110,6 +107,18 @@
               "// 8. Content-Type header includes \"application/json\"\r",
               "pm.test(\"Content-Type header includes application/json\", function () {\r",
               "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+              "});\r",
+              "const schema = {\r",
+              "    type: \"object\",\r",
+              "    required: [\"id\", \"name\"],\r",
+              "    properties: {\r",
+              "        id: { type: \"string\" },\r",
+              "        name: { type: \"string\" }\r",
+              "    }\r",
+              "};\r",
+              "\r",
+              "pm.test(\"Response matches the JSON schema\", function () {\r",
+              "    pm.response.to.have.jsonSchema(schema);\r",
               "});"
             ],
             "type": "text/javascript",
@@ -134,12 +143,9 @@
           }
         },
         "url": {
-          "raw": "https://api.restful-api.dev/objects/7",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects/7",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects",
@@ -158,16 +164,24 @@
           "script": {
             "exec": [
               "pm.test(\"Status code is 200\", function () {\r",
-              "pm.test(\"check valid data\", function () {\r",
-              "    var jsonData = pm.response.json();\r",
-              "    pm.expect(jsonData.name).to.eql(\"Apple MacBook Pro 16\");\r",
-              "});\r",
               "    pm.response.to.have.status(200);\r",
               "});\r",
-              "pm.test(\"Response time is less than 1000ms\", function () {\r",
+              "\r",
+              "pm.test(\"Response time is below 1000ms\", function () {\r",
               "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
               "});\r",
-              ""
+              "\r",
+              "const body = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Created object has the name we sent\", function () {\r",
+              "    pm.expect(body.name).to.eql(\"Apple MacBook Pro 16\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Server returned an id\", function () {\r",
+              "    pm.expect(body.id).to.be.a(\"string\").and.not.empty;\r",
+              "});\r",
+              "\r",
+              "pm.collectionVariables.set(\"objectId\", body.id);"
             ],
             "type": "text/javascript",
             "packages": {},
@@ -188,12 +202,9 @@
           }
         },
         "url": {
-          "raw": "https://api.restful-api.dev/objects",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects"
@@ -212,12 +223,23 @@
               "pm.test(\"Status code is 200\", function () {\r",
               "    pm.response.to.have.status(200);\r",
               "});\r",
-              "pm.test(\"Response time is less than 1000ms\", function () {\r",
+              "\r",
+              "pm.test(\"Response time is below 1000ms\", function () {\r",
               "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
               "});\r",
-              "pm.test(\"check valid year\", function () {\r",
-              "    var jsonData = pm.response.json();\r",
-              "    pm.expect(jsonData.data.year).to.eql(2019);\r",
+              "\r",
+              "const body = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Object id is unchanged\", function () {\r",
+              "    pm.expect(body.id).to.eql(pm.collectionVariables.get(\"objectId\"));\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Price was updated\", function () {\r",
+              "    pm.expect(body.data.price).to.eql(2049.99);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Color field was added\", function () {\r",
+              "    pm.expect(body.data.color).to.eql(\"silver\");\r",
               "});"
             ],
             "type": "text/javascript",
@@ -239,16 +261,13 @@
           }
         },
         "url": {
-          "raw": "https://api.restful-api.dev/objects/ff8081819d3fcc30019d60d98ff12b83",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects/{{objectId}}",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects",
-            "ff8081819d3fcc30019d60d98ff12b83"
+            "{{objectId}}"
           ]
         }
       },
@@ -264,12 +283,19 @@
               "pm.test(\"Status code is 200\", function () {\r",
               "    pm.response.to.have.status(200);\r",
               "});\r",
-              "pm.test(\"Response time is less than 1000ms\", function () {\r",
+              "\r",
+              "pm.test(\"Response time is below 1000ms\", function () {\r",
               "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
-              "pm.test(\"check updated data\", function () {\r",
-              "    var jsonData = pm.response.json();\r",
-              "    pm.expect(jsonData.name).to.eql(\"Apple MacBook Pro 16 (Updated Name)\");\r",
               "});\r",
+              "\r",
+              "const body = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Name was updated\", function () {\r",
+              "    pm.expect(body.name).to.eql(\"Apple MacBook Pro 16 (Updated Name)\");\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Object id is unchanged\", function () {\r",
+              "    pm.expect(body.id).to.eql(pm.collectionVariables.get(\"objectId\"));\r",
               "});"
             ],
             "type": "text/javascript",
@@ -291,16 +317,13 @@
           }
         },
         "url": {
-          "raw": "https://api.restful-api.dev/objects/ff8081819d3fcc30019d60d98ff12b83",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects/{{objectId}}",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects",
-            "ff8081819d3fcc30019d60d98ff12b83"
+            "{{objectId}}"
           ]
         }
       },
@@ -345,12 +368,9 @@
           }
         },
         "url": {
-          "raw": "https://api.restful-api.dev/objects",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects"
@@ -361,18 +381,37 @@
     },
     {
       "name": "delete an object",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response time is below 1000ms\", function () {\r",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "auth": {
           "type": "apikey",
           "apikey": [
             {
-              "key": "key",
-              "value": "x-api-key",
+              "key": "value",
+              "value": "{{apiKey}}",
               "type": "string"
             },
             {
-              "key": "value",
-              "value": "b5355aff-ae25-4350-8f53-18424e98f713",
+              "key": "key",
+              "value": "x-api-key",
               "type": "string"
             }
           ]
@@ -380,16 +419,46 @@
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "https://api.restful-api.dev/objects/ff8081819d82fab6019e1e0d23242e81",
-          "protocol": "https",
+          "raw": "{{baseUrl}}/objects/{{objectId}}",
           "host": [
-            "api",
-            "restful-api",
-            "dev"
+            "{{baseUrl}}"
           ],
           "path": [
             "objects",
-            "ff8081819d82fab6019e1e0d23242e81"
+            "{{objectId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "GET deleted object",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Deleted object is not found (404)\", function () {\r",
+              "    pm.response.to.have.status(404);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/objects/{{objectId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "objects",
+            "{{objectId}}"
           ]
         }
       },
@@ -418,15 +487,19 @@
         "packages": {},
         "requests": {},
         "exec": [
-          "pm.test(\"Status code is 200 or 404 \", function () {\r",
-          "    pm.response.to.have.status(200);\r",
-          "});\r",
-          "pm.test(\"Response time is less than 1000ms\", function () {\r",
-          "    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
-          "});\r",
           ""
         ]
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": ""
+    },
+    {
+      "key": "objectId",
+      "value": ""
     }
   ]
 }
