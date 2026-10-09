@@ -1,46 +1,68 @@
-# Restful API Testing Collection 🚀
+# RESTful API Testing (Postman + Newman)
 
-This repository contains an automated API test suite for the **Restful API** service built using **Postman**. The collection covers full CRUD (Create, Read, Update, Delete) operations with test assertions for functionality, response status codes, and data validation.
+An automated API test suite for the public [Restful API](https://api.restful-api.dev) service, built with **Postman**. It covers the full CRUD cycle (GET, POST, PUT, PATCH, DELETE) with JavaScript assertions, chained requests, JSON schema validation and a negative test, and it can run from the command line with **Newman**.
 
----
+## Tech stack
 
-## 🛠️ Tools & Technologies Used
+| Area | Tool |
+|---|---|
+| API client | Postman |
+| Command-line runner | Newman |
+| Protocol / format | HTTP, REST, JSON |
+| Assertions | Postman test scripts (JavaScript, Chai) |
 
-* **API Client:** Postman
-* **Protocol:** HTTP / RESTful API
-* **Data Format:** JSON
+## Requests in the collection
 
----
+The requests run in this order, because later ones reuse the `id` created by the first POST.
 
-## 📌 Covered API Endpoints
+| # | Request | Method | Endpoint |
+|---|---|---|---|
+| 1 | objects list | GET | `/objects` |
+| 2 | single object | GET | `/objects/7` |
+| 3 | add a new object | POST | `/objects` |
+| 4 | update an object | PUT | `/objects/{{objectId}}` |
+| 5 | partially update an object | PATCH | `/objects/{{objectId}}` |
+| 6 | new object | POST | `/objects` |
+| 7 | delete an object | DELETE | `/objects/{{objectId}}` |
+| 8 | GET deleted object | GET | `/objects/{{objectId}}` |
 
-The collection includes test suites for the following requests:
+## What is tested
 
-* **GET** `/objects` - Fetch all objects list.
-* **GET** `/objects/{id}` - Fetch single object details by ID.
-* **POST** `/objects` - Add a new object.
-* **PUT** `/objects/{id}` - Fully update an existing object.
-* **PATCH** `/objects/{id}` - Partially update an existing object.
-* **POST** `/objects` - Create another object/payload instance.
-* **DELETE** `/objects/{id}` - Delete a specific object.
+- **Status codes** for every request.
+- **Response time** below 1000 ms.
+- **Response body:** field values, data types, and that the object `id` stays the same after PUT and PATCH.
+- **JSON schema validation** on the single-object response.
+- **Negative test:** a deleted object is no longer found (404).
+- **Request chaining:** the POST test saves the new object's `id` in the collection variable `objectId`, and PUT, PATCH, DELETE and the final GET use it.
 
----
+## Variables
 
-## 🧪 Test Coverage & Assertions
+| Variable | Where | Purpose |
+|---|---|---|
+| `baseUrl` | Collection variable | `https://api.restful-api.dev` |
+| `objectId` | Collection variable | Filled automatically by the POST test |
+| `apiKey` | Postman **Environment** | Needed for the DELETE request |
 
-Automated JavaScript tests are written in Postman for each request to verify:
-* ✅ **Status Codes:** Validating `200 OK`, `201 Created`, `204 No Content`, etc.
-* ⏱️ **Response Time:** Ensuring requests complete within acceptable performance thresholds (< 2000ms).
-* 📄 **JSON Schema:** Validating keys, values, and data types in the response body.
+The API key is **not stored in this repository**. Create your own environment with an `apiKey` variable.
 
----
+## How to run
 
-## 🚀 How to Run the Tests
+### In Postman
 
-1. **Clone or Download** this repository.
-2. Open **Postman**.
-3. Click on the **Import** button in Postman and select the `restful.postman_collection.json` file.
-4. Run the collection using the **Postman Collection Runner** or via **Newman CLI**:
+1. Import `restful.postman_collection.json`.
+2. Create an Environment with a variable named `apiKey` and your own key, then select that environment.
+3. Open the collection and click **Run**.
 
-```bash
-newman run restful.postman_collection.json
+### With Newman
+
+```
+npm install -g newman
+newman run restful.postman_collection.json --env-var "apiKey=YOUR_API_KEY"
+```
+
+## Author
+
+**Ahmed Soliman**, Junior QA Engineer (ISTQB CTFL)
+
+- LinkedIn: [linkedin.com/in/ahmed-soliman-qa](https://linkedin.com/in/ahmed-soliman-qa)
+- GitHub: [github.com/9ahmedsoliman7](https://github.com/9ahmedsoliman7)
